@@ -46,5 +46,7 @@ group :development do
 end
 
 gem 'slack-ruby-client'
+
+gem 'sinatra', :require => nil
 gem 'sidekiq'
 gem 'sidekiq-scheduler'
