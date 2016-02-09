@@ -80,6 +80,4 @@ test:
 #
 production:
   <<: *default
-  database: slack_cron_production
-  username: slack_cron
-  password: <%= ENV['SLACK_CRON_DATABASE_PASSWORD'] %>
+  url: <%= ENV['DATABASE_URL'] %>
