@@ -45,7 +45,7 @@ group :development do
   gem 'spring'
 end
 
-gem 'slack-ruby-client'
+gem 'slack-api'
 
 gem 'sinatra', :require => nil
 gem 'sidekiq'

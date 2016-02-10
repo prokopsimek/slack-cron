@@ -1,6 +1,6 @@
 class StandupJob
   include Sidekiq::Worker
   def perform
-    # check if all have written standup today
+    StandupChecker.process!
   end
 end
