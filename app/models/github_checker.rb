@@ -14,7 +14,7 @@ class GithubChecker
     sorted_hash = Hash[ names_with_commits_count.sort_by{ |k,v| v }.reverse ]
 
     message = "*Statistika commitů za posledních 24 hodin:*\n\n"
-    sorted_hash.each{ |k,v| message += "#{k}: #{v}x\n" }
+    sorted_hash.each{ |k,v| message += "#{k}: #{v}\n" }
 
     who_didnt_wrote = about_who_notify.select{ |c| !names_with_commits_count.has_key?(c) }
 
