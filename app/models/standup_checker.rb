@@ -37,10 +37,9 @@ class StandupChecker
   end
 
   def buzz!(user_id)
-    user_info = SlackClient.new.users_info(user: user_id)
     SlackClient.new.chat_postMessage(
       channel: STANDUP_CHANNEL,
-      text: "Hey, #{user_info['user']['name']}! Ty jsi za včerejšek nenapsal standup!",
+      text: "Hey, <@#{user_id}>! Ty jsi za včerejšek nenapsal standup!",
       username: 'Standup checker',
       icon_url: ENV['STANDUP_BOT_ICON_URL']
     )
