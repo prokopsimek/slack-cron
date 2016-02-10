@@ -1,4 +1,6 @@
 standup_job:
-  cron: "00 09 * * 2-6"
+  every:
+    - "5m"
+    - first_in => '1m'
   class: StandupJob
-  description: "This job will check if all have written standup each day at 10am except Monday and Sunday."
+  description: "This job will check if all have written standup."
