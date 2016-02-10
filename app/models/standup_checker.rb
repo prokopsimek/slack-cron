@@ -46,15 +46,14 @@ class StandupChecker
   end
 
   def notify_about_all_who_didnt_wrote(didnt_wrote)
-    users_names = SlackClient.new.users_list['members'].select{ |u| didnt_wrote.include?(u['id']) }.map{ |u| u['name'] }
     names = ''
-    users_names.each_with_index do |name, i|
+    didnt_wrote.each_with_index do |user_id, i|
       names += ', ' if i != 0
-      names += name
+      names += "<@#{user_id}>"
     end
     SlackClient.new.chat_postMessage(
       channel: STANDUP_CHANNEL,
-      text: "Za včerejšek nenapsali standup tito lidé: #{names}",
+      text: "Za včerejšek nenapsali standup tito lidé: #{names}!",
       username: 'Standup checker',
       icon_url: ENV['STANDUP_BOT_ICON_URL']
     )
