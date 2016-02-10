@@ -17,7 +17,7 @@ class StandupChecker
     history = SlackClient.new.groups_history(channel: STANDUP_CHANNEL, oldest: to_timestamp(DateTime.now - 1.minutes))
     messages = history['messages']
     if messages.present?
-      users_who_wrote = messages.map{ |msg| msg['user'] }
+      users_who_wrote = messages.map{ |msg| msg['user'] }.uniq
     else
       users_who_wrote = []
     end
