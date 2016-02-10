@@ -62,4 +62,7 @@ gem 'sinatra', :require => nil
 gem 'sidekiq'
 gem 'sidekiq-scheduler'
 
+# github api
+gem 'octokit', '~> 4.0'
+
 ruby '2.2.4'
