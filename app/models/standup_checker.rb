@@ -14,7 +14,7 @@ class StandupChecker
   end
 
   def get_who_wrote
-    history = SlackClient.new.groups_history(channel: STANDUP_CHANNEL, oldest: to_timestamp(DateTime.now - 10.minutes))
+    history = SlackClient.new.groups_history(channel: STANDUP_CHANNEL, oldest: to_timestamp(DateTime.now - 1.minutes))
     messages = history['messages']
     users_who_wrote = messages.map{ |msg| msg['user'] }
     users_who_wrote
@@ -25,7 +25,11 @@ class StandupChecker
       buzz!(user_id)
     end
 
-    notify_about_all_who_didnt_wrote(didnt_wrote)
+    if didnt_wrote.any?
+      notify_about_all_who_didnt_wrote(didnt_wrote)
+    else
+      notify_that_all_wrote
+    end
   end
 
   def buzz!(user_id)
@@ -48,6 +52,15 @@ class StandupChecker
     SlackClient.new.chat_postMessage(
       channel: STANDUP_CHANNEL,
       text: "Za včerejšek nenapsali standup tito lidé: #{names}",
+      username: 'Standup checker',
+      icon_url: ENV['STANDUP_BOT_ICON_URL']
+    )
+  end
+
+  def notify_that_all_wrote
+    SlackClient.new.chat_postMessage(
+      channel: STANDUP_CHANNEL,
+      text: "Za včerejšek napsali standup všichni lidé, od kterých to je vyžadováno.",
       username: 'Standup checker',
       icon_url: ENV['STANDUP_BOT_ICON_URL']
     )
