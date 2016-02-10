@@ -5,18 +5,25 @@ class StandupChecker
   class << self
 
     def get_who_should_write
-      ENV.select{ |var| var.include?('STANDUP_USER') }.map{|k,v| v}
+      who_should_write = ENV.select{ |var| var.include?('STANDUP_USER') }.map{|k,v| v}
+      Rails.logger.info("Should write: #{who_should_write.inspect}")
+      who_should_write
     end
 
     def get_whom_to_nofity_result
-      ENV.select{ |var| var.include?('STANDUP_NOTIFY') }.map{|k,v| v}
+      whom_to_nofity = ENV.select{ |var| var.include?('STANDUP_NOTIFY') }.map{|k,v| v}
+      Rails.logger.info("Whom to notify: #{whom_to_nofity.inspect}")
+      whom_to_nofity
     end
 
   def process!
     should_write = get_who_should_write
 
     who_wrotes = get_who_wrote
+    Rails.logger.info("Who wrotes: #{who_wrotes.inspect}")
+
     didnt_wrote = should_write - who_wrotes
+    Rails.logger.info("Who didn't wrote: #{didnt_wrote.inspect}")
 
     buzz_all!(didnt_wrote)
   end
@@ -24,11 +31,14 @@ class StandupChecker
   def get_who_wrote
     history = SlackClient.new.groups_history(channel: STANDUP_CHANNEL, oldest: to_timestamp(DateTime.now - 21.hours)) # day before at 9pm
     messages = history['messages']
+    Rails.logger.info("Slack messages: #{messages.inspect}")
+
     if messages.present?
       users_who_wrote = messages.map{ |msg| msg['user'] }.uniq
     else
       users_who_wrote = []
     end
+
     users_who_wrote
   end
 
@@ -53,6 +63,7 @@ class StandupChecker
       username: 'Standup checker',
       icon_url: ENV['STANDUP_BOT_ICON_URL']
     )
+    Rails.logger.info("Buzzed user: #{user_id}")
   end
 
   def notify_about_all_who_didnt_wrote(didnt_wrote, whom_id)
@@ -62,15 +73,18 @@ class StandupChecker
       names += "<@#{user_id}>"
     end
 
-      SlackClient.new.chat_postMessage(
-        channel: whom_id,
-        text: "Za včerejšek nenapsali standup tito lidé: #{names}!",
-        username: 'Standup bitch',
-        icon_url: ENV['STANDUP_BOT_ICON_URL']
-      )
+    Rails.logger.info("Notified about buzzed users: #{whom_id}")
+
+    SlackClient.new.chat_postMessage(
+      channel: whom_id,
+      text: "Za včerejšek nenapsali standup tito lidé: #{names}!",
+      username: 'Standup bitch',
+      icon_url: ENV['STANDUP_BOT_ICON_URL']
+    )
   end
 
   def notify_that_all_wrote(whom_id)
+    Rails.logger.info("Notified about all wrote: #{whom_id}")
     SlackClient.new.chat_postMessage(
       channel: whom_id,
       text: "Za včerejšek napsali standup všichni lidé, od kterých to je vyžadováno.",
@@ -80,7 +94,9 @@ class StandupChecker
   end
 
   def to_timestamp(ago)
-    ago.strftime('%s')
+    timestamp = ago.strftime('%s')
+    Rails.logger.info("Got timestamp: #{timestamp}")
+    timestamp
   end
 
   end
