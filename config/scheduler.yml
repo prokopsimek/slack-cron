@@ -1,6 +1,6 @@
 standup_job:
   every:
-    - "5m"
+    - "1m"
     - first_in => '1m'
   class: StandupJob
   description: "This job will check if all have written standup."
