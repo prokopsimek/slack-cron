@@ -1,5 +1,8 @@
 source 'https://rubygems.org'
 
+# Load env variables from .env file
+gem 'dotenv-rails'
+
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.5'
@@ -26,8 +29,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
-# Use Unicorn as the app server
-# gem 'unicorn'
+gem 'puma'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
@@ -45,8 +47,19 @@ group :development do
   gem 'spring'
 end
 
+group :production do
+  # Make our non-binary responses smaller
+  # See https://github.com/romanbsd/heroku-deflater
+  gem 'heroku-deflater'
+
+  # Heroku rails compatibility gem
+  gem 'rails_12factor'
+end
+
 gem 'slack-api'
 
 gem 'sinatra', :require => nil
 gem 'sidekiq'
 gem 'sidekiq-scheduler'
+
+ruby '2.2.4'
