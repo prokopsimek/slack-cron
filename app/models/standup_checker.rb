@@ -29,7 +29,8 @@ class StandupChecker
   end
 
   def get_who_wrote
-    history = SlackClient.new.groups_history(channel: STANDUP_CHANNEL, oldest: to_timestamp(DateTime.now - 21.hours)) # day before at 9pm
+    history = SlackClient.new.channels_history(channel: STANDUP_CHANNEL, oldest: to_timestamp(DateTime.now - 21.hours)) # day before at 9pm
+    raise StandardError.new("Something went wrong! #{history.inspect}") if history['ok'].to_s == 'false'
     messages = history['messages']
     Rails.logger.info("Slack messages: #{messages.inspect}")
 
@@ -94,7 +95,7 @@ class StandupChecker
   end
 
   def to_timestamp(ago)
-    timestamp = ago.strftime('%s')
+    timestamp = ago.to_i
     Rails.logger.info("Got timestamp: #{timestamp}")
     timestamp
   end
