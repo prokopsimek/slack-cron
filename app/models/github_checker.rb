@@ -2,18 +2,28 @@ class GithubChecker
 
   def self.check_commits_count_for_yesterday!
 
-    all_commits = GithubClient.new.commits_since(ENV['GITHUB_STATS_REPO'], DateTime.now-1.day, per_page: 500)
+    all_commits = GithubClient.new.contributors_stats(ENV['GITHUB_STATS_REPO'], since: DateTime.now-1.day, per_page: 500)
 
     names_with_commits_count = {}
-    all_commits.group_by{
-      |c| c[:author][:login]
-    }.map{
-      |commiter, commits| names_with_commits_count[commiter.to_s] = commits.size
+
+    groupped_commits_by_author = all_commits.group_by do |c|
+      c[:author][:login]
+    end
+
+    last_week_timestamp = nil
+    groupped_commits_by_author.map{
+      |commiter, commits|
+      names_with_commits_count[commiter.to_s] = commits[0][:weeks].last[:c]
+      last_week_timestamp ||= commits[0][:weeks].last[:w]
     }
+
+    names_with_commits_count = names_with_commits_count.reject{ |commiter, commits| commits.to_i == 0 }
+
+    last_week_date = DateTime.strptime(last_week_timestamp.to_s, '%s')
 
     sorted_hash = Hash[ names_with_commits_count.sort_by{ |k,v| v }.reverse ]
 
-    message = "*Statistika commitů za posledních 24 hodin:*\n\n"
+    message = "*Statistika commitů od #{last_week_date.strftime('%-d.%-m.')}:*\n\n"
     sorted_hash.each{ |k,v| message += "#{k}: #{v}\n" }
 
     who_didnt_wrote = about_who_notify.select{ |c| !names_with_commits_count.has_key?(c) }
