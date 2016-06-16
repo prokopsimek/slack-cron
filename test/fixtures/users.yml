@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  id: 1
+  slack_id: MyString
+  standup_counter: 1
+
+two:
+  id: 1
+  slack_id: MyString
+  standup_counter: 1
