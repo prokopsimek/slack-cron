@@ -1,8 +1,8 @@
 standup_job:
   cron: "00 09 * * 2-6"
   class: StandupJob
-  description: "This job will check if all have written standup each day at 10am except Monday and Sunday."
-github_commit_checker_job:
-  cron: "00 06 * * 2-6"
-  class: GithubCommitCheckerJob
-  description: "This job will check collect Github commits each day at 6am except Monday and Sunday and post result to Slack."
+  description: "This job will check if all have written standup each day at 9am except Monday and Sunday."
+#github_commit_checker_job:
+#  cron: "00 06 * * 2-6"
+#  class: GithubCommitCheckerJob
+#  description: "This job will check collect Github commits each day at 6am except Monday and Sunday and post result to Slack."
