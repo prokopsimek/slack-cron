@@ -1,5 +1,6 @@
 standup_job:
-  cron: "00 09 * * 2-6"
+  cron:
+    - "00 09 * * 2-6"
   class: StandupJob
   description: "This job will check if all have written standup each day at 9am except Monday and Sunday."
 #github_commit_checker_job:

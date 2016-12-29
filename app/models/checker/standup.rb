@@ -80,7 +80,7 @@ class Checker::Standup
     def buzz!(user_slack_id)
       count_not_written = User.find_by!(slack_id: user_slack_id).standup_counter
 
-      message = @standup.message_to_user.("[[USER_SLACK_ID]]", "<@#{user_slack_id}>").to_s
+      message = @standup.message_to_user.gsub!("[[USER_SLACK_ID]]", "<@#{user_slack_id}>").to_s
       if count_not_written > 1
         message = "#{message}" + @standup.message_to_user_count_not_written.gsub!("[[COUNT_NOT_WRITTEN]]", "#{count_not_written}").to_s
       end

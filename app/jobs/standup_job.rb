@@ -1,6 +1,8 @@
 class StandupJob
   include Sidekiq::Worker
   def perform
-    # StandupChecker.process!
+    Standup.where(is_active: true).each do |standup|
+      Checker::Standup.run_standup(standup)
+    end
   end
 end
