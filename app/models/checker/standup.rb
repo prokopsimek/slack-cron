@@ -1,4 +1,4 @@
-class StandupChecker
+class Checker::Standup
 
   STANDUP_CHANNEL = ENV['STANDUP_CHANNEL']
 
