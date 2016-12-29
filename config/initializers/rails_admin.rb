@@ -39,6 +39,12 @@ RailsAdmin.config do |config|
     # history_show
   end
 
+  config.authorize_with do
+    authenticate_or_request_with_http_basic('Login required') do |username, password|
+      username == ENV['ADMIN_LOGIN'] && password == ENV['ADMIN_PASSWORD']
+    end
+  end
+
 
   config.model 'Standup' do
     edit do
