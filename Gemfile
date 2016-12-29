@@ -66,4 +66,6 @@ gem 'sidekiq-scheduler'
 # github api
 gem 'octokit', '~> 4.0'
 
-ruby '2.2.4'
+gem 'rails_admin', '~> 1.0'
+
+ruby '2.3.1'

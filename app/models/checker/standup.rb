@@ -1,11 +1,20 @@
 class Checker::Standup
 
-  STANDUP_CHANNEL = ENV['STANDUP_CHANNEL']
-
   class << self
 
+    def run_standup(standup)
+      @standup = standup
+
+      if @standup.is_active?
+        process!
+      else
+        Rails.logger.info("Standup #{@standup.id} disabled")
+        false
+      end
+    end
+
     def get_who_should_write
-      who_should_write = ENV.select { |var| var.include?('STANDUP_USER') }.map { |k, v| v }
+      who_should_write = @standup.users.pluck(:slack_id)
       Rails.logger.info("Should write: #{who_should_write.inspect}")
 
       create_users_if_any_does_not_exist(who_should_write)
@@ -14,7 +23,7 @@ class Checker::Standup
     end
 
     def get_whom_to_nofity_result
-      whom_to_nofity = ENV.select { |var| var.include?('STANDUP_NOTIFY') }.map { |k, v| v }
+      whom_to_nofity = @standup.users.where(standup_notifications: true).pluck(:slack_id)
       Rails.logger.info("Whom to notify: #{whom_to_nofity.inspect}")
 
       create_users_if_any_does_not_exist(whom_to_nofity)
@@ -35,7 +44,7 @@ class Checker::Standup
     end
 
     def get_who_wrote
-      history = SlackClient.new.channels_history(channel: STANDUP_CHANNEL, oldest: to_timestamp(DateTime.now - 21.hours)) # day before at 9pm
+      history = Client::Slack.new(@standup.slack_api_token).channels_history(channel: @standup.channel_read_from, oldest: to_timestamp(DateTime.now - 21.hours)) # day before at 9pm
       raise StandardError.new("Something went wrong! #{history.inspect}") if history['ok'].to_s == 'false'
       messages = history['messages']
       Rails.logger.info("Slack messages: #{messages.inspect}")
@@ -71,17 +80,17 @@ class Checker::Standup
     def buzz!(user_slack_id)
       count_not_written = User.find_by!(slack_id: user_slack_id).standup_counter
 
-      message = "Hey, <@#{user_slack_id}>! Ty jsi za včerejšek nenapsal standup!"
+      message = @standup.message_to_user.("[[USER_SLACK_ID]]", "<@#{user_slack_id}>").to_s
       if count_not_written > 1
-        message = "#{message} Už #{count_not_written}x po sobě!"
+        message = "#{message}" + @standup.message_to_user_count_not_written.gsub!("[[COUNT_NOT_WRITTEN]]", "#{count_not_written}").to_s
       end
 
       if Rails.env.production?
-        SlackClient.new.chat_postMessage(
+        Client::Slack.new(@standup.slack_api_token).chat_postMessage(
           channel: user_slack_id,
           text: message,
-          username: 'Standup checker',
-          icon_url: ENV['STANDUP_BOT_ICON_URL']
+          username: @standup.name.to_s + ' checker',
+          icon_url: @standup.bot_icon_url
         )
       else
         Rails.logger.info("Slack notification for: #{user_slack_id}")
@@ -143,22 +152,22 @@ class Checker::Standup
 
       payload = {
         channel: whom_id,
-        text: "Někdo nenapsal standup!",
-        username: 'Standup bitch',
-        icon_url: ENV['STANDUP_BOT_ICON_URL'],
+        text: @standup.message_to_notified.to_s,
+        username: @standup.name.to_s + ' bitch',
+        icon_url: @standup.bot_icon_url,
         attachments: attachments_payload
       }
 
-      SlackClient.new.chat_postMessage(payload)
+      Client::Slack.new(@standup.slack_api_token).chat_postMessage(payload)
     end
 
     def notify_that_all_wrote(whom_id)
       Rails.logger.info("Notified about all wrote: #{whom_id}")
-      SlackClient.new.chat_postMessage(
+      Client::Slack.new(@standup.slack_api_token).chat_postMessage(
         channel: whom_id,
-        text: "Za včerejšek napsali standup všichni lidé!",
-        username: 'Standup checker',
-        icon_url: ENV['STANDUP_HAPPY_BOT_ICON_URL'],
+        text: @standup.message_all_wrote,
+        username: @standup.name.to_s + ' checker',
+        icon_url: @standup.bot_icon_happy_url,
         attachments: {
           0 => {
             "color": "good",

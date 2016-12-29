@@ -11,18 +11,39 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160616131609) do
+ActiveRecord::Schema.define(version: 20161229200727) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "standups", force: :cascade do |t|
+    t.string   "name"
+    t.string   "slack_api_token"
+    t.string   "channel_read_from"
+    t.string   "cron"
+    t.boolean  "is_active"
+    t.string   "bot_icon_url"
+    t.string   "bot_icon_happy_url"
+    t.string   "message_all_wrote"
+    t.string   "message_to_notified"
+    t.string   "message_to_user"
+    t.string   "message_to_user_count_not_written"
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+  end
+
   create_table "users", force: :cascade do |t|
-    t.string   "slack_id",                    null: false
-    t.integer  "standup_counter", default: 0
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.string   "slack_id",                              null: false
+    t.integer  "standup_counter",       default: 0
+    t.integer  "standup_id"
+    t.boolean  "standup_notifications", default: false
+    t.datetime "created_at",                            null: false
+    t.datetime "updated_at",                            null: false
+    t.string   "name"
   end
 
   add_index "users", ["slack_id"], name: "index_users_on_slack_id", unique: true, using: :btree
+  add_index "users", ["standup_id"], name: "index_users_on_standup_id", using: :btree
 
+  add_foreign_key "users", "standups"
 end
