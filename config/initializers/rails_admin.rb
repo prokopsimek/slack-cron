@@ -46,6 +46,13 @@ RailsAdmin.config do |config|
   end
 
 
+  config.model 'User' do
+    list do
+      field :name
+      include_all_fields
+    end
+  end
+
   config.model 'Standup' do
     edit do
       include_all_fields
