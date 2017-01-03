@@ -82,7 +82,7 @@ class Checker::Standup
 
       message = @standup.message_to_user.gsub!("[[USER_SLACK_ID]]", "<@#{user_slack_id}>").to_s
       if count_not_written > 1
-        message = "#{message}" + @standup.message_to_user_count_not_written.gsub!("[[COUNT_NOT_WRITTEN]]", "#{count_not_written}").to_s
+        message = "#{message} " + @standup.message_to_user_count_not_written.gsub!("[[COUNT_NOT_WRITTEN]]", "#{count_not_written}").to_s
       end
 
       if Rails.env.production?
