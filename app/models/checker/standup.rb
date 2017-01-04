@@ -85,13 +85,16 @@ class Checker::Standup
         message = "#{message} " + @standup.message_to_user_count_not_written.gsub!("[[COUNT_NOT_WRITTEN]]", "#{count_not_written}").to_s
       end
 
+      Rails.logger.info("Message to user: #{message}")
+
       if Rails.env.production?
-        Client::Slack.new(@standup.slack_api_token).chat_postMessage(
+        msg = Client::Slack.new(@standup.slack_api_token).chat_postMessage(
           channel: user_slack_id,
           text: message,
           username: @standup.name.to_s + ' checker',
           icon_url: @standup.bot_icon_url
         )
+        Rails.logger.info("Msg request: #{msg.inspect}")
       else
         Rails.logger.info("Slack notification for: #{user_slack_id}")
         Rails.logger.info(message)
